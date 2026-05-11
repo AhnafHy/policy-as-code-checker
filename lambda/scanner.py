@@ -54,16 +54,16 @@ def parse_attributes(content):
         value = match.group(2)
         attrs[key] = value
     
-    # CIDR blocks in lists
-    cidr_pattern = r'cidr_blocks\s*=\s*\[([^\]]*)\]'
-    for match in re.finditer(cidr_pattern, content):
-        cidrs = re.findall(r'"([^"]*)"', match.group(1))
-        attrs['cidr_blocks'] = cidrs
-    
     # Port numbers
     port_pattern = r'(from_port|to_port)\s*=\s*(\d+)'
     for match in re.finditer(port_pattern, content):
         attrs[match.group(1)] = int(match.group(2))
+    
+    # CIDR blocks
+    cidr_pattern = r'cidr_blocks\s*=\s*\[([^\]]*)\]'
+    for match in re.finditer(cidr_pattern, content):
+        cidrs = re.findall(r'"([^"]*)"', match.group(1))
+        attrs['cidr_blocks'] = cidrs
     
     # Ingress blocks
     ingress_blocks = []
@@ -74,21 +74,25 @@ def parse_attributes(content):
     if ingress_blocks:
         attrs['ingress'] = ingress_blocks
     
-    # Tags block
-    tags_pattern = r'tags\s*=\s*\{([^}]*)\}'
-    tag_match = re.search(tags_pattern, content, re.DOTALL)
-    if tag_match:
-        tags = {}
-        tag_str_pattern = r'(\w+)\s*=\s*"([^"]*)"'
-        for tag_match in re.finditer(tag_str_pattern, tag_match.group(1)):
-            tags[tag_match.group(1)] = tag_match.group(2)
-        attrs['tags'] = tags
-    
     # Versioning block
     versioning_pattern = r'versioning\s*\{([^}]*)\}'
     versioning_match = re.search(versioning_pattern, content, re.DOTALL)
     if versioning_match:
         attrs['versioning'] = parse_attributes(versioning_match.group(1))
+    
+    # Tags block — improved to handle both formats
+    # Format 1: tags = { ... }
+    # Format 2: tags { ... }
+    tags_pattern = r'tags\s*=?\s*\{([^}]*)\}'
+    tag_match = re.search(tags_pattern, content, re.DOTALL)
+    if tag_match:
+        tags = {}
+        tag_content = tag_match.group(1)
+        tag_str_pattern = r'(\w+)\s*=\s*"([^"]*)"'
+        for tm in re.finditer(tag_str_pattern, tag_content):
+            tags[tm.group(1)] = tm.group(2)
+        if tags:
+            attrs['tags'] = tags
     
     return attrs
 
