@@ -5,10 +5,10 @@ import { ArrowLeft, CheckCircle, XCircle } from 'lucide-react'
 import StatusBadge from '../components/StatusBadge'
 import SeverityBadge from '../components/SeverityBadge'
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter'
-import hcl from 'react-syntax-highlighter/dist/esm/languages/hljs/hcl'
+import bash from 'react-syntax-highlighter/dist/esm/languages/hljs/bash'
 import { githubGist } from 'react-syntax-highlighter/dist/esm/styles/hljs'
 
-SyntaxHighlighter.registerLanguage('hcl', hcl)
+SyntaxHighlighter.registerLanguage('bash', bash)
 
 const API = import.meta.env.VITE_API_URL
 
@@ -115,7 +115,7 @@ export default function ScanDetail() {
           <h2 className="text-sm font-medium text-gray-900 mb-3">Scanned code</h2>
           <div className="rounded-xl overflow-hidden border border-gray-200">
             <SyntaxHighlighter
-              language="hcl"
+              language="bash"
               style={githubGist}
               customStyle={{ margin: 0, padding: '1rem', fontSize: '12px' }}
             >
