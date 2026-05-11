@@ -13,27 +13,41 @@ dynamodb = boto3.resource('dynamodb')
 TABLE_NAME = os.environ.get('DYNAMODB_TABLE', 'pac-scans')
 
 def parse_terraform(tf_code):
-    """
-    Simple HCL parser that extracts resource blocks and their attributes.
-    Handles basic terraform configs for policy checking.
-    """
     resources = {}
     
-    # Find all resource blocks
-    resource_pattern = r'resource\s+"([^"]+)"\s+"([^"]+)"\s*\{([^}]*(?:\{[^}]*\}[^}]*)*)\}'
-    matches = re.finditer(resource_pattern, tf_code, re.DOTALL)
+    lines = tf_code.split('\n')
+    i = 0
     
-    for match in matches:
-        resource_type = match.group(1)
-        resource_name = match.group(2)
-        block_content = match.group(3)
+    while i < len(lines):
+        line = lines[i].strip()
         
-        attrs = parse_attributes(block_content)
-        
-        resources[resource_name] = {
-            'type': resource_type,
-            'attributes': attrs
-        }
+        # Look for resource declaration
+        resource_match = re.match(r'resource\s+"([^"]+)"\s+"([^"]+)"\s*\{', line)
+        if resource_match:
+            resource_type = resource_match.group(1)
+            resource_name = resource_match.group(2)
+            
+            # Collect the full block by counting braces
+            brace_count = 1
+            block_lines = []
+            i += 1
+            
+            while i < len(lines) and brace_count > 0:
+                current = lines[i]
+                brace_count += current.count('{') - current.count('}')
+                if brace_count > 0:
+                    block_lines.append(current)
+                i += 1
+            
+            block_content = '\n'.join(block_lines)
+            attrs = parse_attributes(block_content)
+            
+            resources[resource_name] = {
+                'type': resource_type,
+                'attributes': attrs
+            }
+        else:
+            i += 1
     
     return resources
 
