@@ -1,6 +1,7 @@
 # Policy-as-Code Checker
 
 A Terraform security scanner with a live React dashboard, paste any Terraform HCL code and get an instant policy compliance report showing which resources violate security best practices, with severity ratings (Critical/High/Medium/Low), specific remediation advice per finding, and syntax-highlighted code review. The backend runs a custom policy engine written in Python, stores scan history in DynamoDB, and exposes a REST API via Lambda and API Gateway. The entire stack deploys automatically via GitHub Actions CI/CD on every push.
+> **Note on CloudFront:** This project was originally designed to use **AWS CloudFront** as a CDN layer in front of the S3 static website, providing HTTPS, global edge caching, and cache invalidation on every CI/CD deployment. However, new AWS accounts require manual verification before CloudFront distributions can be created. While awaiting approval, the React frontend is served directly from S3 static website hosting over HTTP. Once CloudFront access is granted, re-enabling it requires only uncommenting the CloudFront resource block in `terraform/main.tf` and adding a cache invalidation step to the GitHub Actions workflow — all other infrastructure remains unchanged.
 
 ---
 
