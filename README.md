@@ -8,6 +8,7 @@ A Terraform security scanner with a live React dashboard, paste any Terraform HC
 ## Live Demo
 
 **[Open Policy-as-Code Checker →](http://pac-checker-frontend-b1dec6ad.s3-website.us-east-2.amazonaws.com/)**
+> **Note:** The custom HCL parser handles common Terraform patterns, nested blocks, boolean attributes, string values, and CIDR lists. Full HCL compliance would use the official HashiCorp HCL parser via a Go Lambda layer or the `python-hcl2` library. The custom parser was chosen to demonstrate parsing fundamentals without external dependencies.
 
 ---
 
